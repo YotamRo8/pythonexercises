@@ -1,0 +1,61 @@
+#Exercise1
+rent=3000
+salary=int (input ("what is your salary?"))
+income=salary*0.78
+save=income-rent
+print (save)
+if save >= 1000:
+    print ("rent and save")
+elif save==0:
+   print ("just rent")
+else:
+    print ("not enough")
+#Exercise2
+item_price=100
+print (f"price is {item_price}")
+quantity=int (input ("how many items would you like?"))
+price=quantity*item_price
+shipping_fee=100
+if price > 200:
+    shipping_fee=0
+total_price=price+shipping_fee
+if total_price>500:
+    total_price=total_price*0.9
+    print ("discount applied")
+else:
+    print ("discount not applied")
+if shipping_fee==0:
+    print("shipping fee not applied")
+else:
+    print ("shipping fee applied")
+print (f"total price is {total_price}")
+
+#exercise3
+black_list=(input ("Is he on the list?"))
+if black_list == "yes":
+    list_result = True
+else:
+    list_result = False
+age=int (input ("what is the visitor's age?"))
+has_gold_pass= (input ("has gold?"))
+if has_gold_pass == "yes":
+    gold_result = True
+else:
+    gold_result = False
+print (gold_result)
+is_royal= (input ("is royal?"))
+if is_royal == "yes":
+    royal_result = True
+else:
+    royal_result = False
+print (royal_result)
+if age >= 18:
+    print ("age is okay")
+else:
+    print ("not old enough")
+
+if (list_result == False) and (age >= 18) and ((gold_result == True) or (age >= 18) and (royal_result == True)):
+    print ("You can pass")
+else:
+    print ("You shall not pass")
+
