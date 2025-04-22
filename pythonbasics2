@@ -59,3 +59,62 @@ if (list_result == False) and (age >= 18) and ((gold_result == True) or (age >= 
 else:
     print ("You shall not pass")
 
+#exercise4
+age=int(input ("what is your age?"))
+if age < 25:
+    base_premium=3000
+else:
+    base_premium=2000
+print (base_premium)
+accidents=int (input ("how many accidents did you have?"))
+if accidents > 0:
+    accidents=accidents*500
+total_premium=accidents+base_premium
+print (total_premium)
+if total_premium > 5000:
+    print ("High Risk")
+else:
+    print ("Standard")
+
+#exercise5
+temperature=int (input ("what is the temperarture?"))
+pressure= int (input ("what is the pressure?"))
+voltage= int (input ("what is the voltage?")) 
+if 20 < temperature < 80:
+    temperature_result = True
+else:
+    temperature_result = False
+if pressure < 50:
+    pressure_result = True
+else:
+    pressure_result = False
+if 200 < voltage < 250:
+    voltage_result = True
+else:
+    voltage_result = False
+
+print (temperature, pressure, voltage)
+if (temperature_result == True) and (pressure_result == True) and (voltage_result == True) :
+    print ("safe to proceed")
+else:
+    print ("Unsafe conditions")
+
+#exercise6
+spell=int (input ("what is the spell level?"))
+accuracy= int (input ("what is the accuracy level?"))
+control= int (input ("what is the control level?")) 
+if spell < 40 or accuracy < 40 or control < 40:
+    print ("fail") 
+    exit ()
+average=(spell+accuracy+control)/3
+print (average)
+if average>=90:
+    print ("Archmage")
+elif 75 < average < 89:
+    print ("Mage")
+elif 60 < average < 74:
+    print ("Apperantice")
+elif average < 60:
+    print ("fail")
+
+
