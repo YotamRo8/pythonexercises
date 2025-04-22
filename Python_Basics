@@ -1,0 +1,7 @@
+sentence=input ("write a sentence here")
+print(len (sentence))  
+fav_color="green"
+age=36
+fav_animal= "Not sure"
+
+print (fav_color, age, fav_animal)
