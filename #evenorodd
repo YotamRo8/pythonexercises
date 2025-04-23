@@ -1,0 +1,10 @@
+#evenorodd
+try:
+    input_number=int (input ("choose number to check if even"))
+    if input_number%2 == 0 :
+        print ("Even")
+    else:
+        print ("Odd")    
+except ValueError:
+    print("Wrong input, try again with a number")    
+exit 
