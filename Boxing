@@ -1,0 +1,20 @@
+#Boxing
+import random
+users_move=int (input ("choose a number between 1 to 4"))
+print (users_move)
+opponent_move=random.randint (1, 4)
+print (opponent_move)
+if users_move == 1 and opponent_move == 4:
+    print ("User wins")
+elif users_move == 1 and opponent_move == 2 or 3 :
+    print ("Opponent wins")
+elif users_move == 1 and opponent_move == 1:
+    print ("Draw")
+else:
+    print ("undecided - try again")
+#if users_move == 2 and opponent_move == 3:
+#    print ("User wins")
+#elif users_move == 2 and opponent_move == 1 or 4 :
+  #  print ("Opponent wins")
+#elif users_move == 2 and opponent_move == 2:
+ #   print ("Draw")
