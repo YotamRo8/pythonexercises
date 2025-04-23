@@ -1,0 +1,7 @@
+#Calculator
+print ("Choose 2 numbers to multiply")
+number1=int (input ("choose 1st number"))
+number2=int (input("choose 2nd number"))
+
+print(f"result is {number1*number2}")
+exit
