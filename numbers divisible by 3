@@ -1,0 +1,12 @@
+#numbers divisible by 3
+start=int (input ("choose first number"))
+end=int (input ("choose last number"))
+#print (start)
+#print (end)
+count = 0
+for num in range (start, end +1):
+    if num%3 ==0:
+        print (num)
+        count+=1  
+print("Total number is divisible by 3:", count)
+        
