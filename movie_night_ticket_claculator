@@ -1,0 +1,23 @@
+#movie_night_ticket_claculator
+age=int (input ("Age?"))
+day= input ("Day? (weekday/weekend)")
+loyalty_member= input ("Loyalty memeber? (y/n)")
+#print (age)
+#print (day)
+#print (loyalty_member)
+if age<0:
+    print ("invalid age")
+    exit()
+if day is not "weekday" or "weekend":
+    print ("invalid day")
+    exit()
+Base_price=20
+if age<13:
+    Base_price=Base_price*0.5
+if age>=60:
+    Base_price=Base_price*0.3
+if day=="weekend":
+    Base_price=Base_price+5
+if loyalty_member=="y":
+    Base_price=Base_price-2
+print(Base_price)
