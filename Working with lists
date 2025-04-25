@@ -1,0 +1,12 @@
+myList=[0,1,2,3,4,5,6,7,8,9]
+print(myList)
+myList.append(10)
+print(myList)
+myList.pop(5)
+print(myList)
+myList[2]=3
+print(myList)
+
+print(sum(myList))
+print("Ths lowest number in the list is ", min(myList))
+print("Ths highest number in the list is ", max(myList))
