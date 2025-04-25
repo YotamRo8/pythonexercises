@@ -1,0 +1,28 @@
+#managing_a_dictionary
+students={
+    "name":["Alice", "Bob", "Carl"],
+    "grade" : [90, 80, 70],
+    "age": [35, 30, 25]
+    }
+#dict = "key":value
+print(students)
+
+#append
+students["name"].append("Dana")
+students["grade"].append(60)
+students["age"].append(20)
+print (students)
+
+#update_grade
+index = students["name"].index("Bob")
+students["grade"][index] = 85
+print (students)
+#del-delete
+name_to_delete = "Dana"
+if name_to_delete in students["name"]:
+    index = students["name"].index(name_to_delete)
+    for key in students:
+        students[key].pop(index)
+else:
+    print ("name not found")
+print (students)
