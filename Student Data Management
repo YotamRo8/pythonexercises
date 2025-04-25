@@ -1,0 +1,65 @@
+# 1. Create the students dictionary
+students = {
+    "Alice": {
+        "age": 20,
+        "subjects": ["Math", "English", "History"],
+        "grades": {88, 92, 85}
+    },
+    "Bob": {
+        "age": 22,
+        "subjects": ["Biology", "Chemistry"],
+        "grades": {75, 80, 78}
+    },
+    "Carl": {
+        "age": 19,
+        "subjects": ["Math", "Physics", "Computer Science"],
+        "grades": {90, 95, 85}
+    }
+}
+
+# 2.1 Add a new student
+students["Dana"] = {
+    "age": 21,
+    "subjects": ["Art", "History"],
+    "grades": {89, 90}
+}
+
+# 2.2 Update grades of an existing student (e.g., Alice)
+students["Alice"]["grades"].update({95, 87})  # adds two new grades
+
+# 2.3 Remove a subject from a student (e.g., Bob drops Chemistry)
+students["Bob"]["subjects"].remove("Chemistry")
+
+# 2.4 Calculate average grade of a specific student (e.g., Dana)
+def average_grade(student_name):
+    grades = list(students[student_name]["grades"])
+    return sum(grades) / len(grades) if grades else 0
+
+# Example:
+print("Dana's average grade:", average_grade("Dana"))
+
+# 2.5 Find student with highest average grade
+top_student = None
+highest_avg = 0
+
+for name, info in students.items():
+    avg = average_grade(name)
+    if avg > highest_avg:
+        highest_avg = avg
+        top_student = name
+
+if top_student:
+    top_info = students[top_student]
+    print("\n🏆 Top Student:")
+    print(f"Name: {top_student}")
+    print(f"Age: {top_info['age']}")
+    print(f"Subjects: {top_info['subjects']}")
+    print(f"Average Grade: {highest_avg:.2f}")
+
+# 3. Create and sort tuples (name, age, number of subjects)
+student_tuples = [(name, info["age"], len(info["subjects"])) for name, info in students.items()]
+sorted_tuples = sorted(student_tuples, key=lambda x: x[2])  # sort by number of subjects
+
+print("\n📋 Sorted student tuples by number of subjects:")
+for t in sorted_tuples:
+    print(t)
