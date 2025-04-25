@@ -1,0 +1,26 @@
+# 1. Create a set with 5 unique numbers
+numbers_set = {2, 4, 6, 8, 10}
+
+# 2. Create a tuple with the squares of those numbers
+squares_tuple = tuple(num ** 2 for num in numbers_set)
+
+# 3.1 Convert the set to a list and sort in descending order
+sorted_list = sorted(list(numbers_set), reverse=True)
+print("Sorted list (descending):", sorted_list)
+
+# 3.2 Find intersection between the set and the tuple
+intersection = numbers_set.intersection(squares_tuple)
+
+# 3.3 Print lengths
+print("Length of tuple:", len(squares_tuple))
+print("Length of set:", len(numbers_set))
+
+# 3.4 Try adding a value to the tuple
+try:
+    squares_tuple += (144,)
+    print("New tuple after adding:", squares_tuple)
+except TypeError as e:
+    print("Error when trying to modify tuple:", e)
+
+# 3.5 Print intersection result
+print("Intersection between set and tuple:", intersection)
