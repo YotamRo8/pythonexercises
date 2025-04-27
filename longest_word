@@ -1,0 +1,13 @@
+def longest_word(words):
+    longest = ""
+    for word in words:
+        if len(word) > len(longest):
+            longest = word
+    return longest
+
+# Testing the function
+print(longest_word(["apple", "banana", "cherry", "date"]))      # Output: banana
+print(longest_word(["hi", "world", "python", "AI"]))             # Output: python
+print(longest_word(["one", "two", "six"]))                      # Output: one
+print(longest_word([""]))                                       # Output: (empty string)
+print(longest_word([]))                                         # Output: (empty string)
