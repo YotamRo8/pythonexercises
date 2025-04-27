@@ -1,0 +1,5 @@
+def rectangle_area(x,y):
+    area=(x*y)
+    print("rectangle area is", area)
+
+rectangle_area(10,5) #test area - should be 50
