@@ -1,0 +1,29 @@
+# List of student dictionaries
+students = [
+    {"name": "Alice", "grades": [88, 92, 79]},
+    {"name": "Bob", "grades": [45, 50, 42]},
+    {"name": "Charlie", "grades": [100, 100, 100]},
+    {"name": "Daisy", "grades": []},
+    {"name": "Eve", "grades": [70, 80, 90]}
+]
+
+# Function to calculate average grade
+def calculate_average(student):
+    if student['grades']:
+        return sum(student['grades']) / len(student['grades'])
+    else:
+        return None
+
+# Task 1: Calculate the average grade for each student
+averages = list(map(lambda student: (student['name'], calculate_average(student)), students))
+
+# Print results for averages
+print("Average Grades:")
+for name, avg in averages:
+    if avg is not None:
+        print(f"{name}: {avg:.2f}")
+    else:
+        print(f"{name}: No grades available")
+
+# Task 2: Find students who passed (average grade >= 50)
+passed_students = list(filter(lambda x: x[1]_
