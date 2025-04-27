@@ -1,0 +1,8 @@
+#print reversed text
+#print("text"[::-1])
+
+def reverse (text):
+#text=input ("write your text here to get it reversed:")
+ print(text[::-1])
+
+reverse("Yotam")
