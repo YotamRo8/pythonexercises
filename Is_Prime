@@ -1,0 +1,13 @@
+#Is_Prime?
+
+def Is_Prime (num):
+    if num > 1:
+        for i in range(2, num):
+            if num % i == 0:
+                print("Not Prime")
+                return
+        print("Prime")
+    else:
+        print("Not Prime")
+
+Is_Prime(12)
