@@ -1,0 +1,29 @@
+import json
+#file =open('./students.json', 'r')
+#print(f'reading file {file}')
+#data = json.load(file)
+#file.close
+#print(data)
+
+with open('./books.json', 'r') as file:
+    data=json.load(file)
+    print(data)
+
+for book in data['books']:
+    print(book)
+    print(f'book title{book['title']}')
+    print(f'book author{book['author']}')
+
+    new_book ={
+        'id': 'new_id',
+       'title': 'Why am I doing this?',
+        'author': 'James Doe',
+        'grades': [3,4,5]
+    }
+
+data['books'].append(new_book)
+print("Updated book list:")
+print(data['books'])
+
+with open('./books.json', 'w') as file:
+    json.dump(data,file,indent=4)
