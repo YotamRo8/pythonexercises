@@ -1,0 +1,98 @@
+import boto3
+import botocore
+import logging
+import os
+
+# --- CONFIG ---
+SOURCE_BUCKET = 'my-source-bucket-12345'
+DESTINATION_BUCKET = 'my-destination-bucket-12345'
+REGION = 'us-east-1'
+SNS_TOPIC_NAME = 'file-move-notifier'
+EMAIL = 'your_email@example.com'  # CHANGE THIS TO YOUR EMAIL
+SOURCE_PREFIX = 'customer-details/'
+TARGET_PREFIX = 'sr1/'
+FILTER_PREFIX = 'sr1_'
+SAMPLE_FILES = ['sr1_file1.txt', 'sr1_file2.txt', 'sr2_file1.txt', 'sr3_file1.txt']
+
+# --- INIT CLIENTS ---
+s3 = boto3.client('s3', region_name=REGION)
+sns = boto3.client('sns', region_name=REGION)
+logging.basicConfig(level=logging.INFO)
+
+# --- FUNCTIONS ---
+def create_bucket(bucket_name):
+    try:
+        s3.head_bucket(Bucket=bucket_name)
+        logging.info(f"Bucket {bucket_name} already exists.")
+    except botocore.exceptions.ClientError:
+        s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': REGION})
+        logging.info(f"Bucket {bucket_name} created.")
+
+def upload_sample_files():
+    for filename in SAMPLE_FILES:
+        with open(filename, 'w') as f:
+            f.write(f"Sample content for {filename}")
+        s3.upload_file(filename, SOURCE_BUCKET, f"{SOURCE_PREFIX}{filename}")
+        logging.info(f"Uploaded {filename} to {SOURCE_PREFIX}")
+        os.remove(filename)
+
+def create_sns_topic_and_subscribe():
+    topic = sns.create_topic(Name=SNS_TOPIC_NAME)
+    topic_arn = topic['TopicArn']
+    
+    subs = sns.list_subscriptions_by_topic(TopicArn=topic_arn)
+    emails = [sub['Endpoint'] for sub in subs['Subscriptions']]
+    
+    if EMAIL not in emails:
+        sns.subscribe(
+            TopicArn=topic_arn,
+            Protocol='email',
+            Endpoint=EMAIL
+        )
+        logging.info(f"Subscription sent to {EMAIL}. Please confirm it.")
+
+    return topic_arn
+
+def move_files_and_notify(topic_arn):
+    moved_files = []
+    objects = s3.list_objects_v2(Bucket=SOURCE_BUCKET, Prefix=SOURCE_PREFIX).get('Contents', [])
+    
+    for obj in objects:
+        key = obj['Key']
+        filename = key.split('/')[-1]
+        
+        if filename.startswith(FILTER_PREFIX):
+            source_key = key
+            destination_key = f"{TARGET_PREFIX}{filename}"
+
+            # Copy to destination
+            s3.copy_object(
+                Bucket=DESTINATION_BUCKET,
+                CopySource={'Bucket': SOURCE_BUCKET, 'Key': source_key},
+                Key=destination_key
+            )
+
+            # Delete from source
+            s3.delete_object(Bucket=SOURCE_BUCKET, Key=source_key)
+            moved_files.append(filename)
+            logging.info(f"Moved and deleted: {filename}")
+
+    if moved_files:
+        message = "Moved files:\n" + "\n".join(moved_files)
+        sns.publish(
+            TopicArn=topic_arn,
+            Subject="S3 File Move Completed",
+            Message=message
+        )
+        logging.info("SNS notification sent.")
+
+# --- MAIN ---
+if __name__ == '__main__':
+    create_bucket(SOURCE_BUCKET)
+    create_bucket(DESTINATION_BUCKET)
+
+    upload_sample_files()
+
+    topic_arn = create_sns_topic_and_subscribe()
+
+    move_files_and_notify(topic_arn)
