@@ -1,0 +1,132 @@
+import os
+import json
+import random
+import requests
+from time import sleep
+
+POKEMON_JSON = "pokemon_collection.json"
+POKEMON_API_BASE = "https://pokeapi.co/api/v2/pokemon"
+
+
+def load_pokemon_db():
+    if os.path.exists(POKEMON_JSON):
+        with open(POKEMON_JSON, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def save_pokemon_db(data):
+    with open(POKEMON_JSON, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def get_all_pokemon_names():
+    url = f"{POKEMON_API_BASE}?limit=1000"
+    res = requests.get(url)
+    res.raise_for_status()
+    data = res.json()
+    return [item["name"] for item in data["results"]]
+
+
+def fetch_pokemon_details(name):
+    url = f"{POKEMON_API_BASE}/{name}"
+    res = requests.get(url)
+    res.raise_for_status()
+    data = res.json()
+    return {
+        "name": data["name"],
+        "height": data["height"],
+        "weight": data["weight"],
+        "base_experience": data["base_experience"],
+    }
+
+
+def display_pokemon(pokemon):
+    print(f"\n🎯 You got {pokemon['name'].capitalize()}!")
+    print(f"   Height: {pokemon['height']}")
+    print(f"   Weight: {pokemon['weight']}")
+    print(f"   Base XP: {pokemon['base_experience']}\n")
+
+
+def main():
+    db = load_pokemon_db()
+
+    while True:
+        ans = input("Would you like to draw a Pokémon? (yes/no): ").strip().lower()
+        if ans not in ("yes", "y"):
+            print("👋 Goodbye! See you next time!")
+            break
+
+        all_names = get_all_pokemon_names()
+        chosen = random.choice(all_names)
+
+        if chosen in db:
+            print("📁 Pokémon already in collection.")
+            display_pokemon(db[chosen])
+        else:
+            print("🔍 Fetching new Pokémon details...")
+            details = fetch_pokemon_details(chosen)
+            db[chosen] = details
+            save_pokemon_db(db)
+            display_pokemon(details)
+
+        sleep(1)
+
+
+# --- Deployment Instructions ---
+
+DEPLOYMENT_SCRIPT = """
+#!/bin/bash
+set -e
+
+# === System Update ===
+sudo apt update && sudo apt install -y python3 python3-pip git
+
+# === Clone the App ===
+if [ ! -d "pokemon-app" ]; then
+  git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git pokemon-app
+fi
+
+cd pokemon-app
+
+# === Install Requirements ===
+pip3 install -r requirements.txt || echo "No requirements.txt found."
+
+# === Add usage instructions ===
+BASHRC="/home/ubuntu/.bashrc"
+LINE='echo "🐍 To run the Pokémon App: python3 main.py"'
+grep -qxF "$LINE" $BASHRC || echo "$LINE" >> $BASHRC
+
+echo "✅ App installed. Log out and log back in to see the welcome message."
+"""
+
+TERRAFORM_SCRIPT = """
+# Terraform script for deploying a basic Ubuntu server on AWS
+# Save this block to main.tf and run `terraform apply`
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "pokemon_server" {
+  ami           = "ami-0c55b159cbfafe1f0"  # Ubuntu AMI (update as needed)
+  instance_type = "t2.micro"
+
+  user_data = <<-EOF
+              #!/bin/bash
+              apt update
+              apt install -y git python3 python3-pip
+              git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+              cd YOUR_REPO_NAME
+              python3 main.py
+              EOF
+
+  tags = {
+    Name = "PokemonAppServer"
+  }
+}
+"""
+
+if __name__ == "__main__":
+    print("⚙️ Starting Pokémon app...\n")
+    main()
