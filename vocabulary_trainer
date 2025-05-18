@@ -1,0 +1,235 @@
+import json
+import os
+import random
+import time
+
+VOCAB_FILE = 'vocab_hebrew.json'
+REPEAT_TARGET = 7
+
+def load_vocab():
+    if not os.path.exists(VOCAB_FILE):
+        return {}
+    with open(VOCAB_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def save_vocab(vocab):
+    with open(VOCAB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(vocab, f, indent=2, ensure_ascii=False)
+
+# ---------- Editing Mode Functions ----------
+
+def add_word(unit, word, meaning):
+    word = word.strip().lower()
+    meaning = meaning.strip()
+    vocab = load_vocab()
+
+    if unit not in vocab:
+        print(f"Unit '{unit}' not found. Creating new unit.")
+        vocab[unit] = {}
+
+    if word in vocab[unit]:
+        print(f"The word '{word}' already exists in unit '{unit}'.")
+        return
+
+    vocab[unit][word] = {'meaning': meaning, 'repeat_count': 0}
+    save_vocab(vocab)
+    print(f"Word '{word}' added to unit '{unit}'.")
+
+def delete_word(unit, word):
+    word = word.strip().lower()
+    vocab = load_vocab()
+
+    if unit not in vocab or word not in vocab[unit]:
+        print(f"'{word}' not found in unit '{unit}'.")
+        return
+
+    confirm = input(f"Are you sure you want to delete '{word}' from '{unit}'? (y/n): ").lower()
+    if confirm == 'y':
+        del vocab[unit][word]
+        save_vocab(vocab)
+        print(f"Deleted '{word}' from '{unit}'.")
+    else:
+        print("Deletion canceled.")
+
+def update_word(unit, old_word, new_word, new_meaning):
+    old_word = old_word.strip().lower()
+    new_word = new_word.strip().lower()
+    new_meaning = new_meaning.strip()
+
+    vocab = load_vocab()
+
+    if unit not in vocab or old_word not in vocab[unit]:
+        print(f"'{old_word}' not found in unit '{unit}'.")
+        return
+
+    vocab[unit][new_word] = vocab[unit].pop(old_word)
+    vocab[unit][new_word]['meaning'] = new_meaning
+    save_vocab(vocab)
+    print(f"Updated word '{old_word}' to '{new_word}' with new meaning.")
+
+def list_words(unit):
+    vocab = load_vocab()
+    if unit not in vocab:
+        print(f"Unit '{unit}' does not exist.")
+        return
+    for word, info in vocab[unit].items():
+        print(f"{word} - {info['meaning']} (Repeated: {info['repeat_count']}x)")
+
+# ---------- Training Mode Functions ----------
+
+def training_mode():
+    vocab = load_vocab()
+    if not vocab:
+        print("No vocabulary found. Please add some words first.")
+        return
+
+    print("\nAvailable units:")
+    for unit in vocab.keys():
+        print(f" - {unit}")
+    unit = input("Select a unit: ").strip()
+
+    if unit not in vocab:
+        print(f"Unit '{unit}' does not exist.")
+        return
+
+    words = list(vocab[unit].keys())
+    if not words:
+        print(f"No words in unit '{unit}'.")
+        return
+
+    option = input("Practice (f)ull unit or a (r)ange? (f/r): ").strip().lower()
+    if option == 'r':
+        list_words(unit)
+        start = input("Start word: ").strip().lower()
+        end = input("End word: ").strip().lower()
+
+        if start not in vocab[unit] or end not in vocab[unit]:
+            print("One or both words not found.")
+            return
+
+        start_index = words.index(start)
+        end_index = words.index(end)
+        if start_index > end_index:
+            print("Start word appears after end word.")
+            return
+        words = words[start_index:end_index + 1]
+
+    # Repeat words with repeat_count < REPEAT_TARGET
+    practice_words = [w for w in words if vocab[unit][w]['repeat_count'] < REPEAT_TARGET]
+    if not practice_words:
+        print("All words have been practiced enough.")
+        return
+
+    random.shuffle(practice_words)
+    for word in practice_words:
+        for _ in range(REPEAT_TARGET - vocab[unit][word]['repeat_count']):
+            print(f"\n📝 English: {word}")
+            time.sleep(3)
+            print(f"🔤 Meaning: {vocab[unit][word]['meaning']}")
+            input("Press Enter to continue...")
+            vocab[unit][word]['repeat_count'] += 1
+            save_vocab(vocab)
+
+# ---------- Testing Mode Functions ----------
+
+def testing_mode():
+    vocab = load_vocab()
+    if not vocab:
+        print("No vocabulary found.")
+        return
+
+    print("\nAvailable units:")
+    for unit in vocab.keys():
+        print(f" - {unit}")
+    unit = input("Choose a unit to test: ").strip()
+
+    if unit not in vocab:
+        print("Invalid unit.")
+        return
+
+    words = list(vocab[unit].items())
+    if not words:
+        print("No words in this unit.")
+        return
+
+    random.shuffle(words)
+    correct = 0
+    incorrect = []
+
+    for word, info in words:
+        print(f"\n📝 What is the meaning of: {word}?")
+        answer = input("Your answer: ").strip().lower()
+
+        if answer == info['meaning'].strip().lower():
+            print("✅ Correct!")
+            correct += 1
+        else:
+            print(f"❌ Incorrect. The correct meaning is: {info['meaning']}")
+            incorrect.append((word, info['meaning']))
+
+    total = len(words)
+    print("\n🎯 Test Summary:")
+    print(f"Score: {correct}/{total} ({(correct/total)*100:.1f}%)")
+    if incorrect:
+        print("\nWords you missed:")
+        for word, meaning in incorrect:
+            print(f"{word} - {meaning}")
+
+# ---------- Main Menu ----------
+
+def editing_mode():
+    while True:
+        print("\n--- Editing Mode ---")
+        print("1. Add Word")
+        print("2. Delete Word")
+        print("3. Update Word")
+        print("4. List Words")
+        print("5. Back to Main Menu")
+        choice = input("Choose an action: ")
+
+        if choice == '1':
+            unit = input("Enter unit name: ")
+            word = input("Enter English word: ")
+            meaning = input("Enter meaning (Hebrew/Arabic): ")
+            add_word(unit, word, meaning)
+        elif choice == '2':
+            unit = input("Enter unit name: ")
+            word = input("Enter word to delete: ")
+            delete_word(unit, word)
+        elif choice == '3':
+            unit = input("Enter unit name: ")
+            old_word = input("Old word: ")
+            new_word = input("New word: ")
+            new_meaning = input("New meaning: ")
+            update_word(unit, old_word, new_word, new_meaning)
+        elif choice == '4':
+            unit = input("Enter unit name: ")
+            list_words(unit)
+        elif choice == '5':
+            break
+        else:
+            print("Invalid choice.")
+
+def main():
+    while True:
+        print("\n==== Vocabulary Trainer ====")
+        print("1. Editing Mode")
+        print("2. Training Mode")
+        print("3. Testing Mode")
+        print("4. Exit")
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            editing_mode()
+        elif choice == '2':
+            training_mode()
+        elif choice == '3':
+            testing_mode()
+        elif choice == '4':
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice.")
+
+if __name__ == '__main__':
+    main()
