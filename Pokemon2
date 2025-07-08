@@ -1,0 +1,75 @@
+import boto3
+import requests
+import random
+
+# DynamoDB resource
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+table = dynamodb.Table('PokemonCollection')
+
+def get_random_pokemon():
+    """Fetch list of Pokémon and pick one randomly"""
+    url = 'https://pokeapi.co/api/v2/pokemon?limit=1000'
+    response = requests.get(url)
+    all_pokemon = response.json()['results']
+    selected = random.choice(all_pokemon)
+    return selected['name'], selected['url']
+
+def fetch_pokemon_data(name, url):
+    """Download Pokémon details from the API"""
+    response = requests.get(url)
+    data = response.json()
+    
+    types = list(set(t['type']['name'] for t in data['types']))
+    abilities = list(set(a['ability']['name'] for a in data['abilities']))
+    
+    return {
+        'pokemon_name': name,
+        'id': int(data['id']),
+        'height': int(data['height']),
+        'weight': int(data['weight']),
+        'base_experience': int(data['base_experience']),
+        'types': types,
+        'abilities': abilities,
+        'image_url': data['sprites']['other']['official-artwork']['front_default']
+    }
+
+def save_to_dynamo(item):
+    table.put_item(Item=item)
+
+def read_from_dynamo(name):
+    result = table.get_item(Key={'pokemon_name': name})
+    return result.get('Item')
+
+def show_pokemon(item):
+    print("=======================================")
+    print(f"Name: {item['pokemon_name']}")
+    print(f"ID: {item['id']}")
+    print(f"Height: {item['height']}")
+    print(f"Weight: {item['weight']}")
+    print(f"Base Experience: {item['base_experience']}")
+    print(f"Types: {', '.join(item['types'])}")
+    print(f"Abilities: {', '.join(item['abilities'])}")
+    print(f"Image URL: {item['image_url']}")
+    print("=======================================")
+
+if __name__ == "__main__":
+    while True:
+        choice = input("Would you like to draw a Pokémon? (yes/no): ").strip().lower()
+        if choice == 'no':
+            print("Goodbye!")
+            break
+        elif choice == 'yes':
+            name, url = get_random_pokemon()
+            item = read_from_dynamo(name)
+            
+            if item:
+                print(f"Pokémon '{name}' found in DynamoDB:")
+                show_pokemon(item)
+            else:
+                print(f"Fetching details for '{name}' from API...")
+                item = fetch_pokemon_data(name, url)
+                save_to_dynamo(item)
+                print(f"Saved Pokémon '{name}' to DynamoDB:")
+                show_pokemon(item)
+        else:
+            print("Please answer yes or no.")
